@@ -1,4 +1,4 @@
-# DevOps MCP Guide
+# Guia DevOps MCP [EN](#English)
 
 Guia practica para aprender Model Context Protocol (MCP) desde cero y aplicarlo a herramientas DevOps.
 
@@ -15,6 +15,8 @@ Este repositorio busca servir como:
 
 ```text
 docs/
+  es/
+  en/
 examples/
 complete-server/
 diagrams/
@@ -22,7 +24,7 @@ diagrams/
 
 ## Ruta recomendada
 
-1. Leer la guia en `docs/`.
+1. Leer la guia en `docs/es/` o `docs/en/`.
 2. Ejecutar los ejemplos en `examples/`.
 3. Revisar el servidor completo en `complete-server/`.
 4. Extraer una template independiente para servidores MCP DevOps.
@@ -30,3 +32,29 @@ diagrams/
 ## Estado
 
 Este repositorio esta en fase inicial de estructura y planificacion.
+
+---
+
+# DevOps MCP Guide [ES](#guia-devops-mcp)
+
+Practical guide to learn Model Context Protocol (MCP) from scratch and apply it to DevOps tools.
+
+## Objective
+
+This repository seeks to serve as:
+
+- Progressive guide to understanding MCP.
+- Collection of small and isolated examples.
+- Basis for building a complete MCP DevOps server.
+- Previous reference to a future reusable template in another repository.
+
+## Structures
+
+```text
+docs/
+  es/
+  en/
+examples/
+complete-server/
+diagrams/
+```
