@@ -33,6 +33,10 @@ diagrams/
 
 Este repositorio esta en fase inicial de estructura y planificacion.
 
+# Fuentes
+
+- [Fuentes y referencias oficiales](docs/SOURCES.md)
+
 ---
 
 # DevOps MCP Guide [ES](#guia-devops-mcp)
@@ -58,3 +62,18 @@ examples/
 complete-server/
 diagrams/
 ```
+
+## Route recommended
+
+1. Read the guide in `docs/es` or `docs/en/`.
+2. Executed the examples in `examples/`.
+3. Check the complete server in `complete-server/`.
+4. Extract a template for servers MCP DevOps.
+
+## State
+
+This repository stay in initial phase structure and planification.
+
+## Official sources
+
+- [Official sources or references](docs/SOURCES.md)
