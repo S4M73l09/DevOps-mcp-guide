@@ -84,7 +84,7 @@ El host coordina la experiencia general, gestiona permisos y decide como usar el
 
 ### Client
 
-El cliente MCP es el componente que mantiene la conexion entre el host y un servidor MCP concreto.
+El cliente MCP es el componente que gestiona la comunicacion entre el host y un servidor MCP concreto.
 
 Normalmente, el host crea un cliente por cada servidor MCP al que se conecta.
 
@@ -94,7 +94,7 @@ Por ejemplo:
 - Un cliente para un servidor MCP de Kubernetes.
 - Un cliente para un servidor MCP de Terraform.
 
-Cada cliente mantiene una sesion aislada con su servidor.
+Cada cliente mantiene aislada la integracion con su servidor.
 
 ### Server
 

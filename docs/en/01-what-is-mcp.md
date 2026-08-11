@@ -84,7 +84,7 @@ The host coordinates the overall experience, manages permissions, and decides ho
 
 ### Client
 
-The MCP client is the component that maintains the connection between the host and a specific MCP server.
+The MCP client is the component that manages communication between the host and a specific MCP server.
 
 Usually, the host creates one client for each MCP server it connects to.
 
@@ -94,7 +94,7 @@ For example:
 - One client for a Kubernetes MCP server.
 - One client for a Terraform MCP server.
 
-Each client maintains an isolated session with its server.
+Each client keeps its integration with the server isolated.
 
 ### Server
 
