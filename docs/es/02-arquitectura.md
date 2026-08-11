@@ -2,7 +2,7 @@
 
 ## Proposito
 
-Explicar como se organiza MCP por dentro: participantes, capas, ciclo de vida de una conexion y capacidades que puede exponer cada parte.
+Explicar como se organiza MCP por dentro: participantes, capas, ciclo de vida del protocolo y capacidades que puede exponer cada parte.
 
 ## Indice
 
@@ -14,10 +14,10 @@ Explicar como se organiza MCP por dentro: participantes, capas, ciclo de vida de
 - [Capas de MCP](#capas-de-mcp)
   - [Data layer](#data-layer)
   - [Transport layer](#transport-layer)
-- [Ciclo de vida de una conexion](#ciclo-de-vida-de-una-conexion)
-  - [Inicializacion](#inicializacion)
+- [Ciclo de vida y negociacion](#ciclo-de-vida-y-negociacion)
+  - [Versiones anteriores: inicializacion](#versiones-anteriores-inicializacion)
   - [Operacion](#operacion)
-  - [Cierre](#cierre)
+  - [Cierre del transporte](#cierre-del-transporte)
 - [Capacidades](#capacidades)
   - [Capacidades del servidor](#capacidades-del-servidor)
   - [Capacidades del cliente](#capacidades-del-cliente)
@@ -29,7 +29,7 @@ Explicar como se organiza MCP por dentro: participantes, capas, ciclo de vida de
 
 MCP sigue una arquitectura cliente-servidor, pero con tres conceptos importantes: host, client y server.
 
-El host es la aplicacion de IA. El client es la conexion MCP concreta que vive dentro del host. El server es el programa que expone capacidades externas.
+El host es la aplicacion de IA. El client es el componente de comunicacion MCP que vive dentro del host. El server es el programa que expone capacidades externas.
 
 Una forma simple de verlo:
 
@@ -77,7 +77,7 @@ El host no tiene por que saber como funciona Kubernetes, Terraform o Docker por 
 
 ### Client
 
-El client MCP es el componente que mantiene una conexion con un servidor MCP.
+El client MCP es el componente que gestiona la comunicacion con un servidor MCP concreto.
 
 Normalmente no lo usamos directamente como usuarios. Vive dentro del host y se encarga de:
 
@@ -85,7 +85,7 @@ Normalmente no lo usamos directamente como usuarios. Vive dentro del host y se e
 - Negociar capacidades.
 - Enviar requests al servidor.
 - Recibir responses y notifications.
-- Mantener la sesion aislada.
+- Mantener aislada la comunicacion y las capacidades de cada servidor.
 
 La idea importante es esta:
 
@@ -130,8 +130,7 @@ MCP usa JSON-RPC 2.0 como base para estructurar:
 
 Esta capa incluye conceptos como:
 
-- Inicializacion de la conexion.
-- Negociacion de version y capacidades.
+- Inicializacion y negociacion de version y capacidades, cuando la version del protocolo lo requiere.
 - Listado de tools, resources y prompts.
 - Ejecucion de tools.
 - Lectura de resources.
@@ -161,19 +160,19 @@ Transport layer:
   stdio, HTTP u otro mecanismo soportado
 ```
 
-## Ciclo de vida de una conexion
+## Ciclo de vida y negociacion
 
-Una conexion MCP tiene ciclo de vida. No se trata solo de mandar un comando y recibir una respuesta.
+La comunicacion MCP tiene un ciclo de vida, pero sus detalles dependen de la version del protocolo y del transporte utilizado. No se trata solo de mandar un comando y recibir una respuesta.
 
-El ciclo habitual tiene tres fases:
+En versiones anteriores, el ciclo habitual tenia tres fases:
 
 1. Inicializacion.
 2. Operacion.
 3. Cierre.
 
-### Inicializacion
+### Versiones anteriores: inicializacion
 
-La inicializacion es la primera fase de una conexion MCP.
+En versiones anteriores de MCP, como `2025-11-25`, la inicializacion era la primera fase de una conexion MCP.
 
 Durante esta fase, client y server intercambian informacion como:
 
@@ -192,7 +191,9 @@ Client <--- capabilities --- Server
 Client ---- initialized ---> Server
 ```
 
-Esta negociacion evita que el host intente usar funcionalidades que el servidor no ofrece.
+Esta negociacion evitaba que el host intentara usar funcionalidades que el servidor no ofrecia.
+
+En la especificacion `2026-07-28`, el protocolo base utiliza peticiones autocontenidas y la informacion de version y capacidades se transporta por peticion. El modelo Host, Client y Server no cambia, pero ya no debe asumirse que todas las comunicaciones comienzan con este handshake.
 
 ### Operacion
 
@@ -221,24 +222,24 @@ Client <--- result -------- Server
 
 En DevOps, esto podria representar primero descubrir que herramientas ofrece un servidor y despues ejecutar una herramienta segura, como consultar logs o validar Terraform.
 
-### Cierre
+### Cierre del transporte
 
-El cierre termina la conexion de forma ordenada.
+El cierre del transporte termina la comunicacion de forma ordenada.
 
 Dependiendo del transporte, el cierre puede significar:
 
 - Finalizar un proceso local.
-- Cerrar una sesion.
+- Cerrar una conexion o un flujo de transporte.
 - Terminar una conexion HTTP.
 - Liberar recursos asociados.
 
-Aunque muchas veces el cierre queda oculto por el SDK o por el host, sigue siendo parte del ciclo de vida del protocolo.
+Aunque muchas veces el cierre queda oculto por el SDK o por el host, sigue siendo responsabilidad del transporte liberar sus recursos.
 
 ## Capacidades
 
 Una capacidad indica que puede hacer una parte dentro de una conexion MCP.
 
-Durante la inicializacion, client y server declaran las capacidades que soportan. Despues, durante la operacion, solo deberian usarse las capacidades negociadas.
+Segun la version del protocolo, client y server pueden declarar sus capacidades durante una inicializacion o mediante metadatos asociados a cada peticion. En todos los casos, solo deberian usarse capacidades que la otra parte haya declarado o que el protocolo permita.
 
 Esto es importante porque MCP no asume que todos los servidores tengan todas las funcionalidades.
 

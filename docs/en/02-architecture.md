@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Explain how MCP is organized internally: participants, layers, connection lifecycle, and the capabilities each side can expose.
+Explain how MCP is organized internally: participants, layers, protocol lifecycle, and the capabilities each side can expose.
 
 ## Table of Contents
 
@@ -14,10 +14,10 @@ Explain how MCP is organized internally: participants, layers, connection lifecy
 - [MCP Layers](#mcp-layers)
   - [Data Layer](#data-layer)
   - [Transport Layer](#transport-layer)
-- [Connection Lifecycle](#connection-lifecycle)
-  - [Initialization](#initialization)
+- [Lifecycle and Capability Negotiation](#lifecycle-and-capability-negotiation)
+  - [Earlier Versions: Initialization](#earlier-versions-initialization)
   - [Operation](#operation)
-  - [Shutdown](#shutdown)
+  - [Transport Shutdown](#transport-shutdown)
 - [Capabilities](#capabilities)
   - [Server Capabilities](#server-capabilities)
   - [Client Capabilities](#client-capabilities)
@@ -29,7 +29,7 @@ Explain how MCP is organized internally: participants, layers, connection lifecy
 
 MCP follows a client-server architecture, but with three important concepts: host, client, and server.
 
-The host is the AI application. The client is the concrete MCP connection that lives inside the host. The server is the program that exposes external capabilities.
+The host is the AI application. The client is the MCP communication component that lives inside the host. The server is the program that exposes external capabilities.
 
 A simple way to look at it:
 
@@ -77,7 +77,7 @@ The host does not need to know how Kubernetes, Terraform, or Docker work interna
 
 ### Client
 
-The MCP client is the component that maintains a connection with an MCP server.
+The MCP client is the component that manages communication with a specific MCP server.
 
 As users, we usually do not interact with it directly. It lives inside the host and is responsible for:
 
@@ -85,7 +85,7 @@ As users, we usually do not interact with it directly. It lives inside the host 
 - Negotiating capabilities.
 - Sending requests to the server.
 - Receiving responses and notifications.
-- Keeping the session isolated.
+- Keeping communication and capabilities isolated for each server.
 
 The important idea is:
 
@@ -130,8 +130,7 @@ MCP uses JSON-RPC 2.0 as the basis for structuring:
 
 This layer includes concepts such as:
 
-- Connection initialization.
-- Version and capability negotiation.
+- Initialization and version and capability negotiation, when required by the protocol version.
 - Listing tools, resources, and prompts.
 - Executing tools.
 - Reading resources.
@@ -161,19 +160,19 @@ Transport layer:
   stdio, HTTP, or another supported mechanism
 ```
 
-## Connection Lifecycle
+## Lifecycle and Capability Negotiation
 
-An MCP connection has a lifecycle. It is not just about sending a command and receiving a response.
+MCP communication has a lifecycle, but its details depend on the protocol version and the transport in use. It is not just about sending a command and receiving a response.
 
-The usual lifecycle has three phases:
+In earlier versions, the usual lifecycle had three phases:
 
 1. Initialization.
 2. Operation.
 3. Shutdown.
 
-### Initialization
+### Earlier Versions: Initialization
 
-Initialization is the first phase of an MCP connection.
+In earlier MCP versions, such as `2025-11-25`, initialization was the first phase of an MCP connection.
 
 During this phase, client and server exchange information such as:
 
@@ -192,7 +191,9 @@ Client <--- capabilities --- Server
 Client ---- initialized ---> Server
 ```
 
-This negotiation prevents the host from trying to use features that the server does not offer.
+This negotiation prevented the host from trying to use features that the server did not offer.
+
+In the `2026-07-28` specification, the base protocol uses self-contained requests, and version and capability information is carried per request. The Host, Client, and Server model does not change, but communications should no longer be assumed to begin with this handshake.
 
 ### Operation
 
@@ -221,24 +222,24 @@ Client <--- result -------- Server
 
 In DevOps, this could represent first discovering which tools a server offers and then executing a safe tool, such as querying logs or validating Terraform.
 
-### Shutdown
+### Transport Shutdown
 
-Shutdown ends the connection in an orderly way.
+Transport shutdown ends communication in an orderly way.
 
 Depending on the transport, shutdown can mean:
 
 - Ending a local process.
-- Closing a session.
+- Closing a connection or transport stream.
 - Terminating an HTTP connection.
 - Releasing associated resources.
 
-Although shutdown is often hidden by the SDK or the host, it is still part of the protocol lifecycle.
+Although shutdown is often hidden by the SDK or the host, the transport is still responsible for releasing its resources.
 
 ## Capabilities
 
 A capability indicates what one side can do within an MCP connection.
 
-During initialization, client and server declare the capabilities they support. Later, during operation, only negotiated capabilities should be used.
+Depending on the protocol version, client and server may declare their capabilities during initialization or through metadata associated with each request. In all cases, only capabilities declared by the other side or allowed by the protocol should be used.
 
 This matters because MCP does not assume every server has every feature.
 
