@@ -13,4 +13,5 @@ Esta guía se basa principalmente en la documentación y especificación oficial
 - [MCP Prompts](https://modelcontextprotocol.io/specification/2026-07-28/server/prompts)
 - [MCP Transports](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports)
 - [MCP Authorization](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization)
+- [MCP Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices)
 - [Official MCP GitHub Organization](https://github.com/modelcontextprotocol)
