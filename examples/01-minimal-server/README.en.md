@@ -94,7 +94,7 @@ The next exanmple adds the first MCP tool without connecting to external infraes
 
 <details>
 
-  Lock file, important that sets exact versions of dependencies and allows the environment correctly.
+  Lock file important that sets exact versions of dependencies and allows the environment correctly.
 
 </details>
 

@@ -88,7 +88,7 @@ Este ejemplo no lo hace:
 
 <details>
 
-  Archivo Lock, importante que fija versiones exactas de las dependencias y permite el entorno correctamente.
+  Archivo Lock importante que fija versiones exactas de las dependencias y permite el entorno correctamente.
 
 </details>
 
