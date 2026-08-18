@@ -153,3 +153,17 @@ dependecies = [
 ```
 En el archivo `pyproject.tml`.
 
+---
+
+## Imagenes con ejemplos
+
+Imagen que muestra el Inspector del servidor MCP.
+
+![Inicio Inspector MCP](Images/MCP-Inspector-Capture-minimal.png)
+
+Imagen que muestra el servidor activado:
+
+![Server Inspector MCP](Images/MCP-Inspector-Capture-server.png)
+
+
+

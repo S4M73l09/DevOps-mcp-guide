@@ -157,4 +157,16 @@ It is also a good idea to set the Python dependencies of the example coherently:
 dependencies = [
     "mcp[cli]==2.0.0",
 ]
+```
 
+---
+
+## Examples with images
+
+Image showing the Inspector MCP minimal.
+
+![Home Inspector MCP](Images/MCP-Inspector-Capture-minimal.png)
+
+Image showing the activate server.
+
+![Server Inspector MCP](images/MCP-Inspector-Capture-server.png)
