@@ -1,0 +1,18 @@
+[project]
+name = "mcp-example-01-minimal-server"
+version = "0.1.0"
+description = "Minimal MCP server-example"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-anyio",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["."]

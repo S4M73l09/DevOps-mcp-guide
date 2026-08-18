@@ -1,0 +1,14 @@
+{
+    "mcpServers": {
+      "minimal-devops-mcp":{
+        "command": "uv",
+        "args": [
+          "run",
+          "mcp",
+          "run",
+          "server.py"
+        ],
+        "protocolEra": "modern"
+      }
+    }
+}
