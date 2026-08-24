@@ -1,7 +1,7 @@
 [project]
 name = "mcp-example-04-validation"
 version = "0.1.0"
-description = "MCP server with static and dynamic resources"
+description = "MCP server with Validation"
 requires-python  = ">=3.10"
 dependencies = [
     "mcp[cli]",
