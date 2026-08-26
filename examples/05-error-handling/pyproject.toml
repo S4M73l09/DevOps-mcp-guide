@@ -1,0 +1,18 @@
+[project]
+name = "mcp-example-05-error-handling"
+version = "0.1.0"
+description = "MCP server demonstrating controlled error handling"
+requires-python  = ">=3.10"
+dependencies = [
+    "mcp[cli]",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-anyio",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["."]
