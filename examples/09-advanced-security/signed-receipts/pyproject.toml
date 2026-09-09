@@ -1,0 +1,20 @@
+[project]
+name = "mcp-example-09-signed-receipts"
+version = "0.1.0"
+description = "MCP example with simulated signed receipts"
+requires-python = ">=3.10"
+dependencies = [
+    "cryptography",
+    "mcp[cli]",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-anyio",
+]
+
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["."]

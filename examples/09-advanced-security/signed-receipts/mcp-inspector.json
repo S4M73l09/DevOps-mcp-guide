@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "signed-receipts-ephemeral": {
+      "command": "uv",
+      "args": ["run", "mcp", "run", "server.py"],
+      "env": {
+        "MCP_SIGNING_MODE": "ephemeral"
+      },
+      "protocolEra": "modern"
+    },
+    "signed-receipts-local": {
+      "command": "uv",
+      "args": ["run", "mcp", "run", "server.py"],
+      "env": {
+        "MCP_SIGNING_MODE": "local",
+        "MCP_SIGNING_KEY_PATH": "keys/dev-signing-key.pem"
+      },
+      "protocolEra": "modern"
+    },
+    "signed-receipts-production-example": {
+      "command": "uv",
+      "args": ["run", "mcp", "run", "server.py"],
+      "env": {
+        "MCP_SIGNING_MODE": "production"
+      },
+      "protocolEra": "modern"
+    }
+  }
+}
