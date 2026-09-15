@@ -66,7 +66,30 @@ No se usa `terraform apply` ni `terraform destroy` para el ejemplo actual, debid
 
 Se puede agregar para desplegar cambios, pero forma parte de tu propio riesgo, asegurate de agregar politicas, aplicar seguridad, añadir guardarailes a los modelos agenticos, generar logs periodicos y agregar para mayor reproducibilidad certificados firmados.
 
+Aqui puedes ver la carpeta que contiene la configuracion basica usada: [terraform-fixtures](fixtures/terraform/basic/)
 
+Y la configuracion usada para alojar sus `tools`: [terraform.py](tools/terraform.py)
+
+## Docker
+
+En esta `fixture` se usa imagenes dentro de un `docker-compose.yaml` en el que se aloja una base de datos utilizando `postgres`, un administrador de base de datos como `Adminer`, registro de metricas con `Prometheus` y visualizacion de metricas avanzadas con `grafana`.
+
+En este ejemplo concreto de `docker` se usa variables de ejemplo `.env.example`. Tambien las imagenes usan versiones reproducibles usando su ***Digest + tag***.
+
+En este ejemplo, se muestra la validacion y consulta en contenedores en su propio `docker.py` para el servidor ***MCP***, como se comento en el ejemplo de Terraform, las herramientas utilizadas para desplegar y/o actualizar el contenedor, debe tener especial cuidado aplicando politicas, arneses, validacion y confirmacion humana.
+
+### Funcionalidades de las tools
+
+Las `tools` creadas para el entorno Docker permiten acceder a los diferentes `compose.yaml` alojados en la ruta objetivo, inspeccionar las imagenes alojadas en los composes y visualizar de manera general el contenedor.
+
+```text
+register_docker_tools
+├──docker_list_compose_files  -- Le pasas la ruta donde se aloja los diferentes compose, te muestra todos los compose.
+├──docker_compose_config      -- Te permite visualizar el compose, cuando le pasas la ruta y el nombre de un compose especifico.
+├──docker_compose_images      -- Muestra todas las imagenes alojadas en un compose, le pasas la ruta y el nombre de un compose especifico.
+├──docker_image_inspect       -- Permite inspeccionar una imagen concreta de un compose, le pasas el nombre de imagen que da la tool anterior.
+└──docker_compose_ps          -- Muestra el estado del contenedor de manera general, le pasas la ruta y el nombre de un compose especifico.
+```
 
 ---
 
