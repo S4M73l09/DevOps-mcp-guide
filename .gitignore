@@ -7,3 +7,6 @@ __pycache__/
 
 examples/09-advanced-security/signed-receipts/keys/*
 !examples/09-advanced-security/signed-receipts/keys/.gitkeep
+
+## Excluir variables en local
+.env
