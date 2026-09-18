@@ -91,6 +91,65 @@ register_docker_tools
 └──docker_compose_ps          -- Muestra el estado del contenedor de manera general, le pasas la ruta y el nombre de un compose especifico.
 ```
 
+Puedes ver aqui la `tool`: [docker.py](tools/docker.py)
+
+## Kubernetes
+
+En la `fixture` de Kubernetes se ha creado un cluster de ejemplo el cual servira para mostrar las diferentes `tools` dentro del servidor ***MCP***
+
+El cluster contiene lo basico para su funcionamiento y despliegue. Tambien contiene version ***Digest + tag*** para asegurar version inmutable. No contiene `secrets`, `Ingress`, `LoadBalancer`, permisos RBAC ni operaciones mutables debido a que depende del usuario y las politicas de seguridad a la hora de tocar infraestructura critica en servicios concretos. Todo ello corre a riesgo propio.
+
+La estructura de este ejemplo utiliza la base para crear tres diferentes overlays.
+
+- `development`  
+- `staging`  
+- `production`  
+
+Aqui un vistazo de la estructura:
+
+```text
+fixtures/kubernetes/
+├── base/
+│   ├── namespace.yaml
+│   ├── configmap.yaml
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── kustomization.yaml
+└── overlays/
+    ├── development/
+    │   └── kustomization.yaml
+    ├── staging/
+    │   └── kustomization.yaml
+    └── production/
+        └── kustomization.yaml
+```
+
+La lista que contiene la `tool` es:
+
+1. `kubernetes_current_context`  
+    Muestra el contexto Kubernetes activo.
+
+2. `kubernetes_list_namespace` es:
+    Lista los namespaces disponibles.
+
+3. `kubernetes_list_pods`
+    Lista los pods de un namespace concreto.
+
+4. `kubernetes_list_deployments` es:
+    Lista los deployments de un namespace.
+
+5. `kubernetes_list_services` es:
+    Lista los servicios de un namespace.
+
+6. `kubernetes_list_services` es:
+    Consulta eventos recientes para detectar errores o problemas.
+
+7. `kubernetes_validate_manifest` es:
+    Valida un manifiesto YAML o un overlay de Kustomize mediante `--dry-run=client`, sin aplicar cambios.
+
+
+Aqui puedes ver la `tool` concreta de kubernetes: [kubernetes.py](tools/kubernetes.py)
+
 ---
 
 ## Comandos usados
