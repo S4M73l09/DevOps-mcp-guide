@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+
+resources:
+  - ../../base
+  - namespace.yaml
+
+
+namespace: devops-demo-staging
+
+
+labels:
+  - pairs:
+      environment: staging
+    includeSelectors: true
+
+
+replicas:
+  - name: demo-web
+    count: 3
