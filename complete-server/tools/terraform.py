@@ -1,6 +1,8 @@
 from pathlib import Path
 import subprocess
 
+from tools.receipt_support import attach_signed_receipt
+
 
 def _run_terraform(
     arguments: list[str],
@@ -69,7 +71,7 @@ def _init_terraform(directory: Path) -> dict[str, object]:
     )
 
 
-def register_terraform_tools(mcp, config) -> None:
+def register_terraform_tools(mcp, config, signing_provider) -> None:
     @mcp.tool()
     def terraform_format_check(path: str) -> dict[str, object]:
         """Check Terraform formatting without modifying files."""
@@ -180,6 +182,8 @@ def register_terraform_tools(mcp, config) -> None:
     def terraform_plan(
         path: str,
         var_file: str | None = None,
+        include_receipt: bool = False,
+        actor: str = "local-user",
     ) -> dict[str, object]:
         """Create a Terraform plan without applying changes."""
         directory = _validate_directory(path)
@@ -238,8 +242,25 @@ def register_terraform_tools(mcp, config) -> None:
         )
         return_code = plan_result.get("return_code")
 
+        def _finish_success(
+            response: dict[str, object],
+        ) -> dict[str, object]:
+            return attach_signed_receipt(
+                response,
+                include_receipt=include_receipt,
+                action="terraform_plan",
+                target=str(directory),
+                actor=actor,
+                environment=config.environment,
+                input_data={
+                    "path": str(directory),
+                    "var_file": var_file,
+                },
+                signing_provider=signing_provider,
+            )
+
         if return_code == 0:
-            return {
+            response = {
                 "tool": "terraform_plan",
                 "ok": True,
                 "status": "no_changes",
@@ -247,9 +268,10 @@ def register_terraform_tools(mcp, config) -> None:
                 "message": "Terraform plan completed with no changes.",
                 "return_code": return_code,
             }
+            return _finish_success(response)
 
         if return_code == 2:
-            return {
+            response = {
                 "tool": "terraform_plan",
                 "ok": True,
                 "status": "changes_planned",
@@ -258,6 +280,7 @@ def register_terraform_tools(mcp, config) -> None:
                 "return_code": return_code,
                 "plan_output": plan_result.get("stdout", ""),
             }
+            return _finish_success(response)
 
         return {
             "tool": "terraform_plan",

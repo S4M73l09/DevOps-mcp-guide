@@ -1,7 +1,7 @@
 import json
 import subprocess
 from pathlib import Path
-
+from tools.receipt_support import attach_signed_receipt
 
 def _run_command(
     arguments: list[str],
@@ -79,7 +79,7 @@ def _compose_file_error(
     }
 
 
-def register_docker_tools(mcp, config) -> None:
+def register_docker_tools(mcp, config, signing_provider) -> None:
     @mcp.tool()
     def docker_list_compose_files(path: str) -> dict[str, object]:
         """List Docker Compose files in a directory."""
@@ -176,7 +176,9 @@ def register_docker_tools(mcp, config) -> None:
 
     @mcp.tool()
     def docker_compose_images(
-        compose_file: str
+        compose_file: str,
+        include_receipt: bool = False,
+        actor: str = "local-user",
     ) -> dict[str, object]:
         """List images declared in a Docker Compose file."""
         compose_path = _validate_compose_file(compose_file)
@@ -224,7 +226,7 @@ def register_docker_tools(mcp, config) -> None:
         ]
 
 
-        return {
+        response = {
             "tool": "docker_compose_images",
             "ok": True,
             "status": "images_found",
@@ -235,6 +237,19 @@ def register_docker_tools(mcp, config) -> None:
                 f"{len(images)} Docker image(s) found in the Compose file."
             ),
         }
+
+        return attach_signed_receipt(
+            response,
+            include_receipt=include_receipt,
+            action="docker_compose_images",
+            target=str(compose_path),
+            actor=actor,
+            environment=config.environment,
+            input_data={
+                "compose_file": str(compose_path),
+            },
+            signing_provider=signing_provider,
+        )
 
 
     @mcp.tool()

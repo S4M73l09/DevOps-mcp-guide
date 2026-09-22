@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 from pathlib import Path
+from tools.receipt_support import attach_signed_receipt
 
 
 def _configured_context() -> str | None:
@@ -118,7 +119,7 @@ def _parse_resource_list(
     }
 
 
-def register_kubernetes_tools(mcp, config) -> None:
+def register_kubernetes_tools(mcp, config, signing_provider) -> None:
     @mcp.tool()
     def kubernetes_current_context(
         context: str | None = None,
@@ -266,6 +267,8 @@ def register_kubernetes_tools(mcp, config) -> None:
     def kubernetes_validate_manifest(
         path: str,
         context: str | None = None,
+        include_receipt: bool = False,
+        actor: str = "local-user",
     ) -> dict[str, object]:
         """Validate a Kubernetes manifest or Kustomize overlay without applying it."""
         manifest_path = Path(path).expanduser().resolve()
@@ -318,7 +321,7 @@ def register_kubernetes_tools(mcp, config) -> None:
                 or "",
             }
 
-        return {
+        response = {
             "tool": "kubernetes_validate_manifest",
             "ok": True,
             "status": "manifest_valid",
@@ -329,3 +332,17 @@ def register_kubernetes_tools(mcp, config) -> None:
                 "No resources were applied."
             ),
         }
+
+        return attach_signed_receipt(
+            response,
+            include_receipt=include_receipt,
+            action="kubernetes_validate_manifest",
+            target=str(manifest_path),
+            actor=actor,
+            environment=config.environment,
+            input_data={
+                "path": str(manifest_path),
+                "context": context,
+            },
+            signing_provider=signing_provider,
+        )
