@@ -12,13 +12,30 @@ Actualmente la estructura basica de este ejemplo practico muestra una configurac
 ```text
 10-complete-server/
 ├── fixtures
-    └── terraform
-        └── basic  # Estructura basica de Terraform
+    ├── terraform
+        └── basic           # Estructura basica de Terraform
+    ├── docker
+        └── compose         # Estructura donde esta las imagenes de docker
+    ├── kubernetes
+        ├── base            # Estructura del cluster base
+        └── overlays        # Entornos separados para el cluster basico
+            ├── development
+            ├── production
+            └── staging
+
+├── security
+    ├── __init__.py
+    ├── receipt.py
+    └── signing.py
 ├── tests
     └── test_server.py
 ├── tools
     ├── __init.py__
-    └── diagnostics.py # Archivo para diagnostico sobre la inicializacion del servidor mcp
+    ├── diagnostics.py      # Archivo para diagnostico sobre la inicializacion del servidor mcp
+    ├── docker.py
+    ├── kubernetes.py
+    ├── receipt_support.py
+    └── terraform.py
 ├── config.py
 ├── mcp-inspector.json
 ├── pyproject.toml
@@ -151,6 +168,150 @@ La lista que contiene la `tool` es:
 Aqui puedes ver la `tool` concreta de kubernetes: [kubernetes.py](tools/kubernetes.py)
 
 ---
+
+## Signed receipts en las tools DevOps
+
+El servidor puede generar un `signed receipt` como evidencia verificable de determinadas operaciones.
+
+Un receipt no ejecuta acciones ni autoriza cambios. Su función es demostrar que una tool recibió una entrada concreta y produjo una salida concreta.
+
+El flujo es:
+
+```text
+entrada de la tool
+     |
+validación
+     |
+ejecución de la operación
+     |
+resultado
+     |
+hash de entrada y salida
+     |
+firma digital opcional
+     |
+signed receipt
+```
+
+### ¿Por qué no se firma todo?
+
+No todas las tools necesitan generar una evidencia firmada.
+
+Las consultas sencillas, como listar pods o namespaces, normalmente solo necesitan un audit log convencional. Los receips se reservan para operaciones cuyo resultado sea especialmente importante o deba verificarse posteriormente.
+
+En este servidor de ejemplo, pueden ser útiles para:
+
+* `terraform_plan`;
+* `docker_compose_images`;
+* `docker_image_inspect`;
+* `kubernetes_validate_manifest`;
+* futuras operaciones de despliegue o promoción.
+
+Actualmente los receipts firmados están disponibles en:
+
+- `terraform_plan`;
+- `docker_compose_images`;
+- `kubernetes_validate_manifest`.
+
+Estas tools aceptan:
+
+```json
+{
+    "include_receipt": true,
+    "actor": "local-user"
+}
+```
+
+Actualmente no sustituyen:
+
+- autorización;
+- confirmación humana;
+- comprobación del estado real;
+- controles de acceso;
+- audit logs convencionales.
+
+Las tools de consulta como `kubernetes_list_pods`, `kubernetes_list_services` y `kubernetes_list_events`todavía utilizan respuestas normales y no generan receipts.
+
+### Activar un receipt
+
+Las tools compatibles incluyen el parámetro:
+
+```json
+{
+    "include_receipt": true
+}
+```
+
+Cuando el parámetro es `false`, la tool devuelve únicamente su resultado normal. Cuando es `true`, añade un objeto `receipt` firmado.
+
+
+Ejemplo conceptual:
+```json
+{
+  "tool": "docker_compose_images",
+  "ok": true,
+  "status": "images_found",
+  "count": 4,
+  "receipt": {
+    "action": "docker_compose_images",
+    "actor": "local-user",
+    "environment": "development",
+    "target": "fixtures/docker/compose/Db-Observ-compose.yaml",
+    "input_hash": "...",
+    "output_hash": "...",
+    "key_id": "...",
+    "signature": "..."
+  }
+}
+```
+
+### ¿Qué contiene el receipt?
+
+El receipt incluye:
+
+* la operación ejecutada;
+* el actor asociado;
+* el entorno;
+* el recurso o ruta objetivo;
+* un hash de la entrada;
+* un hash de la salida;
+* el identificador público de la clave;
+* la firma digital;
+
+La clave privada nunca se incluye en la respuesta.
+
+### Proveedores de firma
+
+El servidor de ejemplo actual utiliza tres modos:
+
+| Modos | Clave | Uso |
+|---|---|---
+|`ephemeral` | Memoria | Pruebas rápidas |
+| `local` | Archivo local protegido | Desarrollo e Inspector |
+| `production` | KMS, HSM o gestor de secretos | Entornos reales |
+
+El `signing_provider` se crea una sola vez al iniciar el servidor y se comparte con las tools que pueden generar receipts. Esto evita crear claves diferentes para cada operación.
+
+La clave privada nunca se incluye en el receipt ni en la respuesta de la tool.
+
+### Qué demuestra y qué no demuestra
+
+Un receipt válido demuestra que:
+
+* una entrada concreta fue procesada;
+* se produjo una salida concreta;
+* el contenido firmado no fue alterado;
+* el servidor utilizó una clave concreta.
+
+Sin embargo, no demuestra por sí solo que un recurso externo haya sido modificado correctamente. Para eso seguirían siendo necesarias la validación, la autorización, la confirmación humana y la comprobación posterior del estado real.
+
+Los receipts complementan los controles de seguridad existentes; no los sustituyen.
+
+
+Cuando `include_receipt` es `false`, devuelven su respuesta normal. Cuando es `true`, añaden un objeto `receipt` firmado.
+
+
+Puedes ver los archivos añadidos de seguridad en este enlace: [seguridad](security/); [receipt_support.py](tools/receipt_support.py); [test_security.py](tests/test_security.py) y tambien puedes ver el archivo general de configuracion del servidor para ver la incorporacion de seguridad, [server.py - receipt](server.py).
 
 ## Comandos usados
 
