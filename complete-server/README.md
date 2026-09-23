@@ -13,12 +13,12 @@ Actualmente la estructura basica de este ejemplo practico muestra una configurac
 10-complete-server/
 ├── fixtures
     ├── terraform
-        └── basic           # Estructura basica de Terraform
+        └── basic               # Estructura basica de Terraform
     ├── docker
-        └── compose         # Estructura donde esta las imagenes de docker
+        └── compose             # Estructura donde esta las imagenes de docker
     ├── kubernetes
-        ├── base            # Estructura del cluster base
-        └── overlays        # Entornos separados para el cluster basico
+        ├── base                # Estructura del cluster base
+        └── overlays            # Entornos separados para el cluster basico
             ├── development
             ├── production
             └── staging
@@ -28,10 +28,13 @@ Actualmente la estructura basica de este ejemplo practico muestra una configurac
     ├── receipt.py
     └── signing.py
 ├── tests
-    └── test_server.py
+    ├── test_server.py
+    ├── test_security.py
+    └── test_tool_receipt.py 
+
 ├── tools
     ├── __init.py__
-    ├── diagnostics.py      # Archivo para diagnostico sobre la inicializacion del servidor mcp
+    ├── diagnostics.py          # Archivo para diagnostico sobre la inicializacion del servidor mcp
     ├── docker.py
     ├── kubernetes.py
     ├── receipt_support.py
@@ -41,7 +44,7 @@ Actualmente la estructura basica de este ejemplo practico muestra una configurac
 ├── pyproject.toml
 ├── README.md
 ├── server.py
-└── uv.lock # Generado por comandos de uv run pytest
+└── uv.lock                     # Generado por comandos de uv run pytest
 
 ```
 ## Configuracion de prueba (***fixtures***)
