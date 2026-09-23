@@ -165,7 +165,14 @@ La lista que contiene la `tool` es:
     Consulta eventos recientes para detectar errores o problemas.
 
 7. `kubernetes_validate_manifest` es:
-    Valida un manifiesto YAML o un overlay de Kustomize mediante `--dry-run=client`, sin aplicar cambios.
+    Valida un manifiesto YAML o un overlay de Kustomize mediante `--dry-run=client`, sin aplicar cambios de manera totalmente ***offline***.
+
+8. `kubernetes_validate_cluster` es:
+    Valida utilizando el contexto o API de un cluster existente, de manera ***online***.
+
+Tanto `kubernetes_validate_manifest` y `kubernetes_validate_cluster` generan un ***signed receipt*** cuando reciben `"include_receipt": true`.
+
+La validación offline y la validación online son equivalentes: la primera comprueba la construccion local de los distintos overlays; la segunda permite detectar problemas relacionados con la versión, políticas y admission controllers del clúster real.
 
 
 Aqui puedes ver la `tool` concreta de kubernetes: [kubernetes.py](tools/kubernetes.py)

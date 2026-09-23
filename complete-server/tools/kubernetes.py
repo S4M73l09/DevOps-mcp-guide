@@ -285,12 +285,8 @@ def register_kubernetes_tools(mcp, config, signing_provider) -> None:
 
         if manifest_path.is_dir():
             arguments = [
-                "apply",
-                "--dry-run=client",
-                "-k",
+                "kustomize",
                 str(manifest_path),
-                "-o",
-                "yaml",
             ]
         else:
             arguments = [
@@ -343,6 +339,109 @@ def register_kubernetes_tools(mcp, config, signing_provider) -> None:
             input_data={
                 "path": str(manifest_path),
                 "context": context,
+            },
+            signing_provider=signing_provider,
+        )
+
+
+    @mcp.tool()
+    def kubernetes_validate_cluster(
+        path: str,
+        context: str,
+        namespace: str | None = None,
+        include_receipt: bool = False,
+        actor: str = "local-user",
+    ) -> dict[str, object]:
+        """Validate a Kustomize overlay against a Kubernetes cluster."""
+        manifest_path = Path(path).expanduser().resolve()
+
+
+        if not manifest_path.is_dir():
+            return {
+                "tool": "kubernetes_validate_cluster",
+                "ok": False,
+                "status": "invalid_overlay",
+                "message": (
+                    "The path must be an existing Kustomize overlay directory."
+                ),
+                "path": str(manifest_path),
+            }
+
+        if not context.strip():
+            return {
+                "tool": "kubernetes_validate_cluster",
+                "ok": False,
+                "status": "context_required",
+                "message": "A Kubernetes context is required.",
+            }
+
+        arguments = []
+
+
+        if namespace:
+            arguments.extend([
+                "--namespace",
+                namespace,
+            ])
+
+
+        arguments.extend([
+            "apply",
+            "--dry-run=server",
+            "-k",
+            str(manifest_path),
+        ])
+
+
+        result = _run_kubectl(
+            arguments,
+            context=context,
+            timeout=60,
+        )
+
+        
+        if not result["ok"]:
+            return {
+                "tool": "kubernetes_validate_cluster",
+                "ok": False,
+                "status": "cluster_validation_failed",
+                "path": str(manifest_path),
+                "context": context,
+                "namespace": namespace,
+                "message": (
+                    "The kubernetes API rejected the server-side validation."
+                ),
+                "details": (
+                    result.get("stderr")
+                    or result.get("stdout")
+                    or ""
+                ),
+            }
+
+        response = {
+            "tool": "kubernetes_validate_cluster",
+            "ok": True,
+            "status": "cluster_manifest_valid",
+            "path": str(manifest_path),
+            "context": context,
+            "namespace": namespace,
+            "message": (
+                "The manifest passed server-side validation. "
+                "No resources were applied."
+            ),
+        }
+
+        return attach_signed_receipt(
+            response,
+            include_receipt=include_receipt,
+            action="kubernetes_validate_cluster",
+            target=str(manifest_path),
+            actor=actor,
+            environment=config.environment,
+            input_data={
+                "path": str(manifest_path),
+                "context": context,
+                "namespace": namespace,
             },
             signing_provider=signing_provider,
         )
