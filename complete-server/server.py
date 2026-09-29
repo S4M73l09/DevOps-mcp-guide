@@ -7,6 +7,8 @@ from tools.terraform import register_terraform_tools
 from tools.docker import register_docker_tools
 from tools.kubernetes import register_kubernetes_tools
 from security.signing import get_signing_provider
+from tools.github_actions import register_github_actions_tools
+from tools.gitlab_ci import register_gitlab_tools
 #from resources.infrastructure import register_resources
 #from prompts.operations import register_prompts
 
@@ -24,6 +26,8 @@ register_diagnostic_tools(mcp, config)
 register_terraform_tools(mcp, config, signing_provider)
 register_docker_tools(mcp, config, signing_provider)
 register_kubernetes_tools(mcp, config, signing_provider)
+register_github_actions_tools(mcp, config)
+register_gitlab_tools(mcp, config)
 
 
 #register_resources(mcp, config)

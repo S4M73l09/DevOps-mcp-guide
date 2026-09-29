@@ -177,6 +177,106 @@ La validación offline y la validación online son equivalentes: la primera comp
 
 Aqui puedes ver la `tool` concreta de kubernetes: [kubernetes.py](tools/kubernetes.py)
 
+## CI/CD
+
+En este apartado concreto se detalla la demostracion de `tools` utilizadas en diferentes plataformas actuales de ***CI/CD*** como lo son `GitHub Actions`, `GitLab` y `Jenkins`.
+
+### GitHub Actions
+
+Para el uso de GitHub Actions, se utiliza una serie de `tools`:
+
+1. `github_list_workflow`: Lista los workflows.
+
+2. `github_list_workflows_runs`: Muestra los worflows ejecutados.
+
+3. `github_get_workflow_run`: Obtiene todos los workflows que se han ejecutado recientemente.
+
+4. `github_list_run_jobs`: Lista todos los jobs ejecutados de cada workflow.
+
+Todas estas `tools` utilizarian la API de GitHub mediante peticiones `GET` y aceptarían explícitamente:
+
+```text
+owner
+repo
+```
+
+Se necesitaria las variables presentadas en el archivo de [.env.example](.env.example).
+
+O cargarlas usando:
+```bash
+set -a
+source .env
+set +a
+uv run mcp run server.py
+```
+
+O podemos configurar esas variables directamente en `mcp-inspector.json`:
+```json
+{
+  "mcpServers": {
+    "devops-complete-server": {
+      "command": "uv",
+      "args": ["run", "mcp", "run", "server.py"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "GITHUB_API_URL": "https://api.github.com",
+        "GITHUB_API_VERSION": "2026-03-10"
+      }
+    }
+  }
+}
+```
+
+***OJO***: `.env.example` muestra las variables necesarias para GitHub Actions.
+Debe copiarse o configurarse en el entorno antes de iniciar el servidor.
+
+
+El servidor no carga automáticamente `.env`. Las variables pueden exportarse manualmente o configurarse en MCP Inspector.
+
+Nunca se debe incluir un token real en `.env.example` ni subirlo al repositorio.
+
+### GitLab
+
+El proceso en GitLab sigue la misma estructura propuesta que en el ejemplo anterior de `GitHub Actions`. 
+
+En este material concreto, las tools pese a usar la estructura, endpoint y configuraciones de `GitLab` el proceso es exactamente igual, a la vez que la logica de dichas `tools`.
+
+> Nota: Las variables necesarias estan en el propio archivo [`.env.example`](.env.example).
+
+Lista de `tools`:
+
+1. `gitlab_list_pipelines`
+2. `gitlab_get_pipeline`
+3. `gitlab_list_pipeline_jobs`
+
+Estas `tools` utilizarian la API de GitLab y su Endpoint.
+
+O podemos configurar esas variables directamente en `mcp-inspector.json`.
+
+```json
+{
+  "mcpServers": {
+    "devops-complete-server": {
+      "command": "uv",
+      "args": [
+        "run",
+        "mcp",
+        "run",
+        "server.py"
+      ],
+      "env": {
+        "GITLAB_TOKEN": "${GITLAB_TOKEN}",
+        "GITLAB_API_URL": "https://gitlab.com/api/v4"
+      }
+    }
+  }
+}
+```
+
+Como en el caso de `GitHub Actions` las variables deben exportarse manualmente o configurarse en `MCP-inspector.json`.
+
+Nunca se debe subir incluir un token real en `.env.example` ni subirlo al repositorio.
+
 ---
 
 ## Signed receipts en las tools DevOps
