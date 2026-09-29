@@ -1,4 +1,4 @@
-# Complete Server
+# Complete Server [EN](README.en.md)
 
 ## Proposito
 
@@ -13,40 +13,58 @@ Actualmente la estructura basica de este ejemplo practico muestra una configurac
 10-complete-server/
 ├── fixtures
     ├── terraform
-        └── basic               # Estructura basica de Terraform
+        └── basic               # Estructura basica de Terraform.
     ├── docker
-        └── compose             # Estructura donde esta las imagenes de docker
+        └── compose             # Estructura donde esta las imagenes de docker.
     ├── kubernetes
-        ├── base                # Estructura del cluster base
-        └── overlays            # Entornos separados para el cluster basico
+        ├── base                # Estructura del cluster base.
+        └── overlays            # Entornos separados para el cluster basico.
             ├── development
             ├── production
             └── staging
-
+├── integrations
+    ├── github_client.py        # Integracion para el uso de servidor mcp para entornos CI/CD GitHub Actions.
+    ├── gitlab_client.py        # Integracion para el uso de servidor mcp para entornos CI/CD GitLab.
+    └── jenkins_client.py       # Integracion para el uso de servidor mcp para entornos CI/CD Jenkins.
 ├── security
     ├── __init__.py
     ├── receipt.py
     └── signing.py
 ├── tests
+    ├── test_gitlab_ci.py
+    ├── test_jenkins_ci.py
     ├── test_server.py
     ├── test_security.py
     └── test_tool_receipt.py 
 
 ├── tools
     ├── __init.py__
-    ├── diagnostics.py          # Archivo para diagnostico sobre la inicializacion del servidor mcp
+    ├── diagnostics.py          # Archivo para diagnostico sobre la inicializacion del servidor mcp.
     ├── docker.py
+    ├── github_actions.py
+    ├── gitlab_ci.py
+    ├── jenkins_ci.py
     ├── kubernetes.py
     ├── receipt_support.py
     └── terraform.py
+├── .env.example                # Archivos con variables de ejemplo como soporte para los ejemplos.
+├── .python-version             # Archivo necesario para usar una version concreta de python, en este caso 3.13.
 ├── config.py
 ├── mcp-inspector.json
 ├── pyproject.toml
 ├── README.md
 ├── server.py
-└── uv.lock                     # Generado por comandos de uv run pytest
+└── uv.lock                     # Generado por comandos de uv run pytest.
 
 ```
+
+> Nota: Se usa la version 3.13 de python como recomendada en este ejemplo debido a problemas de bloqueos en los diferentes tests.
+
+> Debido a ciertas incompatbilidades con algunas tools sincronas, se eligio bajar de version. Igualmente puedes usar la version mas actual de python pero requerira usar async def a todas las tools existentes.
+
+`uv` puede instalar y gestionar su propio intérprete de Python sin reemplazar el Python del sistema.
+
+
 ## Configuracion de prueba (***fixtures***)
 
 Este servidor de ejemplo, usara `fixtures` en las tools DevOps criticas como `Terraform`, `Docker` y `Kubernetes`. Todo ello permite aislar funcionamiento real a funcionamiento para:
@@ -276,6 +294,36 @@ O podemos configurar esas variables directamente en `mcp-inspector.json`.
 Como en el caso de `GitHub Actions` las variables deben exportarse manualmente o configurarse en `MCP-inspector.json`.
 
 Nunca se debe subir incluir un token real en `.env.example` ni subirlo al repositorio.
+
+
+### Jenkins
+
+Debido a como esta estructurado `Jenkins`, se merece un diseño mas cuidadoso en este ambito concreto. Su diferencia es que el ***controller*** decide dónde ejecutar los trabajos y los ***agents*** proporcionan los ejecutores; cada executor representa una capacidad de ejecución concurrente.
+
+De por si `Jenkins` recomienda evitar ejecutar trabajos directamente en el nodo integrado del controller por razones de seguridad y aislamiento.
+
+Para esta herramienta concreta, se usaria estas tools:
+
+1. `server_info`
+2. `list_jobs`
+3. `get_job`
+4. `list_builds`
+5. `get_build`
+6. `get_build_console`
+7. `get_queue`
+8. `list_agents`
+
+Estas tools permitirían:
+
+* Consultar versiones y estado del controller
+* Listar jobs y pipelines.
+* Consultar el último build o builds concretos.
+* Consultar estados: `SUCCESS`, `FAILURE`, `ABORTED`, `UNSTABLE`.
+* Leer información de la cola.
+* Ver agentes conectadosm offline y sus executors.
+* Consultar logs de consola de un build concreto.
+
+***Jenkins*** ofrece una API remote REST-like mediante endpoints `/api/`, con respuestas JSON, y permite consultar jobs, builds y la cola. También permite lanzar builds, pero por temas de seguridad, eso queda bajo el propio riesgo tuyo.
 
 ---
 
