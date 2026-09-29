@@ -35,6 +35,11 @@ def assert_valid_receipt(result) -> dict[str, object]:
     return receipt
 
 
+# Estas pruebas usan un MCPServer en memoria.
+# Puedes forzar el modo legacy para evitar la negociación automática, en este ejemplo se usa el modo legacy
+# del protocolo durante las pruebas internas.
+# Puedes hacerlo cambiando el async: async with Client(mcp) as client:
+
 @pytest.mark.anyio
 async def test_terraform_plan_generates_receipt(tmp_path) -> None:
     source = ROOT / "fixtures/terraform/basic"
@@ -44,11 +49,12 @@ async def test_terraform_plan_generates_receipt(tmp_path) -> None:
     shutil.copytree(source, terraform_fixture)
 
 
-    async with Client(mcp) as client:
+    async with Client(mcp, mode="legacy") as client:
         result = await client.call_tool(
             "terraform_plan",
             {
                 "path": str(terraform_fixture),
+                "var_file": "terraform.tfvars.example",
                 "include_receipt": True,
                 "actor": "integration-test",
             },
@@ -69,7 +75,7 @@ async def test_docker_compose_images_generates_receipt() -> None:
     )
 
 
-    async with Client(mcp) as client:
+    async with Client(mcp, mode="legacy") as client:
         result = await client.call_tool(
             "docker_compose_images",
             {
@@ -93,7 +99,7 @@ async def test_kubernetes_manifest_generates_receipt() -> None:
         / "fixtures/kubernetes/overlays/development"
     )
 
-    async with Client(mcp) as client:
+    async with Client(mcp, mode="legacy") as client:
         result = await client.call_tool(
             "kubernetes_validate_manifest",
             {
@@ -118,7 +124,7 @@ async def test_receipt_can_be_disabled() -> None:
     )
 
 
-    async with Client(mcp) as client:
+    async with Client(mcp, mode="legacy") as client:
         result = await client.call_tool(
             "docker_compose_images",
             {
@@ -145,7 +151,7 @@ async def test_modified_tool_receipt_is_rejected() -> None:
     )
 
 
-    async with Client(mcp) as client:
+    async with Client(mcp, mode="legacy") as client:
         result = await client.call_tool(
             "docker_compose_images",
             {

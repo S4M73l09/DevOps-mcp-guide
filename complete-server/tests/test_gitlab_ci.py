@@ -66,6 +66,9 @@ class FakeGitLabClient:
             ],
         }
 
+# Las pruebas internas usan el modo legacy para evitar la negociación automatica del protocolo durante
+# la conexion en memoria
+# Se usaria este comando para volver al modo dinamico: async with Client(gitlab_server) as client:
 
 @pytest.fixture
 def gitlab_server():
@@ -83,7 +86,7 @@ def gitlab_server():
 
 @pytest.mark.anyio
 async def test_list_gitlab_pipelines(gitlab_server) -> None:
-    async with Client(gitlab_server) as client:
+    async with Client(gitlab_server, mode="legacy") as client:
         result = await client.call_tool(
             "gitlab_list_pipelines",
             {
@@ -105,7 +108,7 @@ async def test_list_gitlab_pipelines(gitlab_server) -> None:
 
 @pytest.mark.anyio
 async def test_list_gitlab_pipeline_jobs(gitlab_server) -> None:
-    async with Client(gitlab_server) as client:
+    async with Client(gitlab_server, mode="legacy") as client:
         result = await client.call_tool(
             "gitlab_list_pipeline_jobs",
             {
