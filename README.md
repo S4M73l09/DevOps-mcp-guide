@@ -31,7 +31,7 @@ diagrams/
 
 ## Estado
 
-Este repositorio esta en fase inicial de estructura y planificacion.
+Este repositorio esta en fase final de estructura y planificacion.
 
 # Fuentes
 
@@ -72,7 +72,7 @@ diagrams/
 
 ## State
 
-This repository stay in initial phase structure and planification.
+This repository stay in final phase structure and planification.
 
 ## Official sources
 
